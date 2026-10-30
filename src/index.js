@@ -1,9 +1,14 @@
-const urlToFilename = (filepath) => {
-  const clearUrl = filepath
-    .replace(/^https?:\/\//, '')
-    .replace(/[^a-z0-9]/gi, '-')
-    .replace(/-+$/, '')
-  return `${clearUrl}.html`
+import fs from 'fs/promises'
+import path from 'path'
+import axios from 'axios'
+import { makeFilename } from './utils.js'
+
+const loadPage = (urlString, outputDir = process.cwd()) => {
+  const fileName = makeFilename(urlString)
+  const fullPath = path.join(outputDir, fileName)
+  return axios(urlString)
+    .then((response) => fs.writeFile(fullPath, response.data))
+    .then(() => fullPath)
 }
 
-export { urlToFilename }
+export default loadPage

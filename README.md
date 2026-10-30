@@ -13,16 +13,27 @@
 
 ## Установка
 
-<!-- Опишите установку: клонирование, зависимости, переменные окружения -->
-
 ```bash
 git clone https://github.com/AlexAirCG/fullstack-javascript-project-4.git
 cd fullstack-javascript-project-4
+make install
+npm link
 ```
 
 ## Использование
 
-<!-- Добавьте примеры запуска и запись asciinema — именно это смотрит работодатель -->
+```bash
+page-loader [--output <dir>] <url>
+```
+
+По умолчанию файл сохраняется в текущую директорию. Команда выводит полный путь к сохранённому файлу.
+
+```bash
+page-loader --output /tmp https://ru.hexlet.io/courses
+# /tmp/ru-hexlet-io-courses.html
+```
+
+[![asciicast](https://asciinema.org/a/v0FuB2S5MMPqMEoT.svg)](https://asciinema.org/a/v0FuB2S5MMPqMEoT)
 
 ---
 

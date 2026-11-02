@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { makeFilename } from '../src/utils.js'
+import { makeFilename, makeResourceFilename } from '../src/utils.js'
 
 test.each([
   ['https://ru.hexlet.io/courses', 'ru-hexlet-io-courses.html'],
@@ -8,4 +8,15 @@ test.each([
   ['https://example.com:8080/a', 'example-com-8080-a.html'],
 ])('makeFilename(%s)', (url, expected) => {
   expect(makeFilename(url)).toBe(expected)
+})
+
+test('makeResourceFilename keeps the extension', () => {
+  expect(makeResourceFilename('https://ru.hexlet.io/assets/professions/nodejs.png')).toBe(
+    'ru-hexlet-io-assets-professions-nodejs.png',
+  )
+})
+
+test('makeResourceFilename limits the length', () => {
+  const longUrl = `https://example.com/${'a'.repeat(500)}.png`
+  expect(makeResourceFilename(longUrl).length).toBeLessThanOrEqual(255)
 })

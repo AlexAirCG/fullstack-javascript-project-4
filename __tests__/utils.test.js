@@ -10,6 +10,10 @@ test.each([
   expect(makeFilename(url)).toBe(expected)
 })
 
+test('makeResourceFilename adds .html when there is no extension', () => {
+  expect(makeResourceFilename('https://ru.hexlet.io/courses')).toBe('ru-hexlet-io-courses.html')
+})
+
 test('makeResourceFilename keeps the extension', () => {
   expect(makeResourceFilename('https://ru.hexlet.io/assets/professions/nodejs.png')).toBe(
     'ru-hexlet-io-assets-professions-nodejs.png',

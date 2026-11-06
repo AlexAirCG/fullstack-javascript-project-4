@@ -13,5 +13,5 @@ export const makeFilename = (urlString) => {
 export const makeResourceFilename = (urlString) => {
   const extension = path.extname(urlString)
   const withoutExtension = urlString.slice(0, urlString.length - extension.length)
-  return `${slugify(withoutExtension).slice(-200)}${extension}`
+  return `${slugify(withoutExtension).slice(-200)}${extension || '.html'}`
 }

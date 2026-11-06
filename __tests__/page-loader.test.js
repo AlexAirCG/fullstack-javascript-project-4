@@ -46,24 +46,42 @@ test('rejects on 404', async () => {
   await expect(loadPage(fullUrl, tmpDir)).rejects.toThrow()
 })
 
-test('downloads images and replaces links in html', async () => {
-  const beforeHTML = await fs.readFile(getFixtureFile('before.html'), 'utf-8')
-  const afterHTML = await fs.readFile(getFixtureFile('after.html'), 'utf-8')
+test('downloads resources and replaces links in html', async () => {
+  const beforeHtml = await fs.readFile(getFixtureFile('before.html'), 'utf-8')
+  const afterHtml = await fs.readFile(getFixtureFile('after.html'), 'utf-8')
   const imageBuffer = await fs.readFile(getFixtureFile('nodejs.png'))
+  const css = await fs.readFile(getFixtureFile('application.css'), 'utf-8')
+  const js = await fs.readFile(getFixtureFile('runtime.js'), 'utf-8')
 
-  nock(baseUrl).get(pagePath).reply(200, beforeHTML)
+  nock(baseUrl).get(pagePath).twice().reply(200, beforeHtml)
   nock(baseUrl).get('/assets/professions/nodejs.png').reply(200, imageBuffer)
+  nock(baseUrl).get('/assets/application.css').reply(200, css)
+  nock(baseUrl).get('/packs/js/runtime.js').reply(200, js)
 
   const resultFilePath = await loadPage(fullUrl, tmpDir)
 
   const savedHtml = await fs.readFile(resultFilePath, 'utf-8')
-  expect(cheerio.load(savedHtml).html()).toBe(cheerio.load(afterHTML).html())
+  expect(cheerio.load(savedHtml).html()).toBe(cheerio.load(afterHtml).html())
 
-  const imagePath = path.join(
-    tmpDir,
-    'ru-hexlet-io-courses_files',
-    'ru-hexlet-io-assets-professions-nodejs.png',
+  const filesDir = path.join(tmpDir, 'ru-hexlet-io-courses_files')
+  const savedImage = await fs.readFile(
+    path.join(filesDir, 'ru-hexlet-io-assets-professions-nodejs.png'),
   )
-  const savedImage = await fs.readFile(imagePath)
+  const savedCss = await fs.readFile(
+    path.join(filesDir, 'ru-hexlet-io-assets-application.css'),
+    'utf-8',
+  )
+  const savedJs = await fs.readFile(
+    path.join(filesDir, 'ru-hexlet-io-packs-js-runtime.js'),
+    'utf-8',
+  )
+  const savedCanonical = await fs.readFile(
+    path.join(filesDir, 'ru-hexlet-io-courses.html'),
+    'utf-8',
+  )
+
   expect(savedImage).toEqual(imageBuffer)
+  expect(savedCss).toBe(css)
+  expect(savedJs).toBe(js)
+  expect(savedCanonical).toBe(beforeHtml)
 })

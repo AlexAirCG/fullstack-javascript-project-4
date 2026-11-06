@@ -33,7 +33,7 @@ page-loader --output /tmp https://ru.hexlet.io/courses
 # /tmp/ru-hexlet-io-courses.html
 ```
 
-[![asciicast](https://asciinema.org/a/v0FuB2S5MMPqMEoT.svg)](https://asciinema.org/a/v0FuB2S5MMPqMEoT)
+https://asciinema.org/a/Gl2FTB5Aqe8bA7CE
 
 ---
 

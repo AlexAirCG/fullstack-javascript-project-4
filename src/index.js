@@ -9,33 +9,46 @@ const loadPage = (urlString, outputDir = process.cwd()) => {
   const fullPath = path.join(outputDir, fileName)
   const resourcesDirName = fileName.replace(/\.html$/, '_files')
   const resourcesDirPath = path.join(outputDir, resourcesDirName)
-  const images = []
+  const pageHost = new URL(urlString).host
+  const resources = []
   let $
 
   return axios(urlString)
     .then((response) => {
       $ = cheerio.load(response.data)
-      $('img').each((_, element) => {
-        const src = $(element).attr('src')
-        const imageUrl = new URL(src, urlString).toString()
-        const resourceFilename = makeResourceFilename(imageUrl)
 
-        images.push({ imageUrl, resourceFilename })
-        $(element).attr('src', `${resourcesDirName}/${resourceFilename}`)
-      })
+      const collectResources = (tag, attribute) => {
+        $(tag).each((_, element) => {
+          const value = $(element).attr(attribute)
+
+          if (!value) return
+
+          const resourceUrl = new URL(value, urlString)
+
+          if (resourceUrl.host !== pageHost) return
+
+          const resourceFilename = makeResourceFilename(resourceUrl.toString())
+          $(element).attr(attribute, `${resourcesDirName}/${resourceFilename}`)
+          resources.push({ resourceUrl, resourceFilename })
+        })
+      }
+
+      collectResources('img', 'src')
+      collectResources('link', 'href')
+      collectResources('script', 'src')
     })
     .then(() => fs.mkdir(resourcesDirPath, { recursive: true }))
-    .then(() => {
+    .then(() =>
       Promise.all(
-        images.map(({ imageUrl, resourceFilename }) =>
+        resources.map(({ resourceUrl, resourceFilename }) =>
           axios
-            .get(imageUrl, { responseType: 'arraybuffer' })
+            .get(resourceUrl, { responseType: 'arraybuffer' })
             .then((response) =>
               fs.writeFile(path.join(resourcesDirPath, resourceFilename), response.data),
             ),
         ),
-      )
-    })
+      ),
+    )
     .then(() => fs.writeFile(fullPath, $.html()))
     .then(() => fullPath)
 }

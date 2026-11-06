@@ -35,6 +35,17 @@ page-loader --output /tmp https://ru.hexlet.io/courses
 
 https://asciinema.org/a/Gl2FTB5Aqe8bA7CE
 
+## Отладка
+
+Логи включаются переменной `DEBUG`:
+
+```bash
+DEBUG=page-loader page-loader https://example.com          # события приложения
+DEBUG=page-loader,axios page-loader https://example.com    # плюс HTTP-запросы
+```
+
+https://asciinema.org/a/UoSddRHCsQo8nEJ4
+
 ---
 
 <details>

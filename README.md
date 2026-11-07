@@ -46,6 +46,18 @@ DEBUG=page-loader,axios page-loader https://example.com    # плюс HTTP-за�
 
 https://asciinema.org/a/UoSddRHCsQo8nEJ4
 
+## Ошибки
+
+При ошибке утилита печатает сообщение в STDERR и завершается с кодом 1:
+
+```bash
+page-loader --output /нет/такой/папки https://example.com
+# Output directory does not exist: /нет/такой/папки
+echo $?   # 1
+```
+
+https://asciinema.org/a/hHUuhJair0GCidF0
+
 ---
 
 <details>

@@ -22,6 +22,7 @@ beforeEach(async () => {
 afterEach(async () => {
   nock.cleanAll()
   nock.enableNetConnect()
+  await fs.chmod(tmpDir, 0o755)
   await fs.rm(tmpDir, { recursive: true, force: true })
 })
 
@@ -44,6 +45,33 @@ test('loadPage', async () => {
 test('rejects on 404', async () => {
   nock(baseUrl).get(pagePath).reply(404)
   await expect(loadPage(fullUrl, tmpDir)).rejects.toThrow()
+})
+
+test('page 404 mentions the url', async () => {
+  nock(baseUrl).get(pagePath).reply(404)
+  await expect(loadPage(fullUrl, tmpDir)).rejects.toThrow(fullUrl)
+})
+
+test('rejects with the page url in the message on network error', async () => {
+  nock(baseUrl).get(pagePath).replyWithError('network error')
+  await expect(loadPage(fullUrl, tmpDir)).rejects.toThrow(fullUrl)
+})
+
+test('rejects with the resource url in the message when a resource fails', async () => {
+  const html = '<html><head><link rel="stylesheet" href="/missing.css"></head></html>'
+  nock(baseUrl).get(pagePath).reply(200, html)
+  nock(baseUrl).get('/missing.css').reply(404)
+  await expect(loadPage(fullUrl, tmpDir)).rejects.toThrow('/missing.css')
+})
+
+test('rejects when the output directory does not exist', async () => {
+  const missingDir = path.join(tmpDir, 'no-such-dir')
+  nock(baseUrl).get(pagePath).reply(200, '<html></html>')
+  await expect(loadPage(fullUrl, missingDir)).rejects.toThrow(missingDir)
+})
+
+test('rejects on an invalid url', async () => {
+  await expect(loadPage('not a url', tmpDir)).rejects.toThrow()
 })
 
 test('downloads resources and replaces links in html', async () => {
@@ -85,3 +113,12 @@ test('downloads resources and replaces links in html', async () => {
   expect(savedJs).toBe(js)
   expect(savedCanonical).toBe(beforeHtml)
 })
+
+test.skipIf(process.getuid() === 0)(
+  'rejects with a clear message when the directory is not writable',
+  async () => {
+    nock(baseUrl).get(pagePath).reply(200, '<html></html>')
+    await fs.chmod(tmpDir, 0o555)
+    await expect(loadPage(fullUrl, tmpDir)).rejects.toThrow(`Cannot write to ${tmpDir}`)
+  },
+)

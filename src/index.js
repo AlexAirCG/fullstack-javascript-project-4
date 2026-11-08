@@ -4,6 +4,7 @@ import axios from 'axios'
 import * as cheerio from 'cheerio'
 import debug from 'debug'
 import axiosDebugLog from 'axios-debug-log'
+import Listr from 'listr'
 import { makeFilename, makeResourceFilename } from './utils.js'
 
 axiosDebugLog.addLogger(axios, debug('axios'))
@@ -92,18 +93,19 @@ const loadPage = (urlString, outputDir = process.cwd()) => {
       log('found %d resources to download', resources.length)
     })
     .then(() => fs.mkdir(resourcesDirPath, { recursive: true }).catch(wrapFsError))
-    .then(() =>
-      Promise.all(
-        resources.map(({ resourceUrl, resourceFilename }) =>
+    .then(() => {
+      const tasks = resources.map(({ resourceUrl, resourceFilename }) => ({
+        title: resourceUrl.toString(),
+        task: () =>
           download(resourceUrl, { responseType: 'arraybuffer' }).then((response) => {
             log('downloaded %s -> %s', resourceUrl, resourceFilename)
             return fs
               .writeFile(path.join(resourcesDirPath, resourceFilename), response.data)
               .catch(wrapFsError)
           }),
-        ),
-      ),
-    )
+      }))
+      return new Listr(tasks, { concurrent: true }).run()
+    })
     .then(() => fs.writeFile(fullPath, $.html()).catch(wrapFsError))
     .then(() => {
       log('page saved: %s', fullPath)

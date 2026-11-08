@@ -11,14 +11,19 @@
 
 - JavaScript
 
-## Установка
+## Установка и прогресс загрузки
+
+Пакет устанавливается из репозитория, при загрузке ресурсов в терминале показывается прогресс по каждому из них:
 
 ```bash
 git clone https://github.com/AlexAirCG/fullstack-javascript-project-4.git
 cd fullstack-javascript-project-4
 make install
 npm link
+page-loader https://example.com
 ```
+
+https://asciinema.org/a/Eb3YBvuw0yk54N3T
 
 ## Использование
 

@@ -48,7 +48,7 @@ const wrapFsError = (error) => {
   throw new Error(`Cannot write to ${error.path}: ${reason}`)
 }
 
-const loadPage = (urlString, outputDir = process.cwd()) => {
+const loadPage = async (urlString, outputDir = process.cwd()) => {
   log('start: %s', urlString)
   const fileName = makeFilename(urlString)
   const fullPath = path.join(outputDir, fileName)

@@ -42,6 +42,10 @@ test('loadPage', async () => {
   expect(cheerio.load(savedContent).html()).toBe(cheerio.load(expectedContent).html())
 })
 
+test('rejects when url is not a string', async () => {
+  await expect(loadPage(undefined, tmpDir)).rejects.toThrow()
+})
+
 test('rejects on 404', async () => {
   nock(baseUrl).get(pagePath).reply(404)
   await expect(loadPage(fullUrl, tmpDir)).rejects.toThrow()
